@@ -12,6 +12,7 @@ void main() {
 
   testWidgets('Tombol pilih karakter dapat ditekan', (WidgetTester tester) async {
     await tester.pumpWidget(const EmoRobotApp());
+    await tester.pumpAndSettle();
 
     final selectorButton = find.byIcon(Icons.person_outline);
     expect(selectorButton, findsOneWidget);

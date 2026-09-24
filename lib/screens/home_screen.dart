@@ -25,60 +25,54 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _touchService = TouchService(engine: widget.engine);
-    widget.engine.addListener(_onEngineChanged);
-  }
-
-  @override
-  void dispose() {
-    widget.engine.removeListener(_onEngineChanged);
-    super.dispose();
-  }
-
-  void _onEngineChanged() {
-    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Emo Robot'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person_outline),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => CharacterSelector(engine: widget.engine),
-                ),
-              );
-            },
-            tooltip: 'Pilih Karakter',
+    return ListenableBuilder(
+      listenable: widget.engine,
+      builder: (context, child) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Emo Robot'),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.person_outline),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CharacterSelector(engine: widget.engine),
+                    ),
+                  );
+                },
+                tooltip: 'Pilih Karakter',
+              ),
+            ],
           ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Expanded(
-              flex: 2,
-              child: RobotDisplay(
-                engine: widget.engine,
-                touchService: _touchService,
-              ),
+          body: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: RobotDisplay(
+                    engine: widget.engine,
+                    touchService: _touchService,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Expanded(
+                  flex: 1,
+                  child: SingleChildScrollView(
+                    child: InteractionButtons(engine: widget.engine),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 24),
-            Expanded(
-              flex: 1,
-              child: SingleChildScrollView(
-                child: InteractionButtons(engine: widget.engine),
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

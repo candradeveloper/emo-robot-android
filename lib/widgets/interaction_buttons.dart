@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../core/character_engine.dart';
-import '../core/emotion_system.dart';
 
 /// Widget yang menampilkan tombol interaksi untuk mengubah suasana hati.
 class InteractionButtons extends StatelessWidget {
@@ -60,10 +59,7 @@ class InteractionButtons extends StatelessWidget {
     required VoidCallback onPressed,
   }) {
     return ElevatedButton.icon(
-      onPressed: () {
-        onPressed();
-        // Memicu perubahan state agar listener mendengarkan.
-      },
+      onPressed: onPressed,
       icon: Icon(icon, color: Colors.white),
       label: Text(label),
       style: ElevatedButton.styleFrom(

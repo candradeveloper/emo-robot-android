@@ -11,7 +11,7 @@ void main() {
   runApp(const EmoRobotApp());
 }
 
-/// Widget utama aplikasi yang mengatur tema, splash, dan state global.
+/// Widget utama aplikasi yang mengatur tema dan state global.
 class EmoRobotApp extends StatefulWidget {
   /// Membuat aplikasi utama.
   const EmoRobotApp({super.key});
@@ -21,19 +21,17 @@ class EmoRobotApp extends StatefulWidget {
 }
 
 class _EmoRobotAppState extends State<EmoRobotApp> {
-  late final CharacterEngine _engine;
-  bool _isReady = false;
-  String? _errorMessage;
+  final CharacterEngine _engine = CharacterEngine();
 
   @override
   void initState() {
     super.initState();
-    _engine = CharacterEngine();
-    _initializeApp();
+    _loadSavedCharacter();
   }
 
-  /// Memuat preferensi karakter tersimpan dan menyiapkan aplikasi.
-  Future<void> _initializeApp() async {
+  /// Memuat preferensi karakter tersimpan secara asinkron di latar belakang.
+  /// Jika gagal, aplikasi tetap berjalan dengan karakter default.
+  Future<void> _loadSavedCharacter() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final savedIndex = prefs.getInt('selected_character_index');
@@ -42,30 +40,11 @@ class _EmoRobotAppState extends State<EmoRobotApp> {
       }
     } catch (e) {
       debugPrint('Gagal memuat preferensi karakter: $e');
-      _errorMessage = 'Gagal memuat preferensi karakter.';
-    }
-
-    if (mounted) {
-      setState(() => _isReady = true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_isReady) {
-      return const MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: SplashScreen(),
-      );
-    }
-
-    if (_errorMessage != null) {
-      return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: FallbackScreen(message: _errorMessage!),
-      );
-    }
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<CharacterEngine>.value(value: _engine),
@@ -78,97 +57,6 @@ class _EmoRobotAppState extends State<EmoRobotApp> {
           useMaterial3: true,
         ),
         home: HomeScreen(engine: _engine),
-      ),
-    );
-  }
-}
-
-/// Layar splash yang ditampilkan saat aplikasi sedang diinisialisasi.
-class SplashScreen extends StatelessWidget {
-  /// Membuat layar splash.
-  const SplashScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.deepPurple,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.smart_toy,
-              size: 80,
-              color: Colors.white,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Emo Robot',
-              style: Theme.of(context)
-                  .textTheme
-                  .headlineMedium
-                  ?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-            'Memuat...',
-            style: TextStyle(color: Colors.white70, fontSize: 16),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Layar fallback yang ditampilkan ketika terjadi kesalahan kritis.
-class FallbackScreen extends StatelessWidget {
-  /// Pesan kesalahan yang akan ditampilkan.
-  final String message;
-
-  /// Membuat layar fallback dengan pesan kesalahan.
-  const FallbackScreen({super.key, required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.deepPurple,
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.error_outline,
-                size: 64,
-                color: Colors.white,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Terjadi Kesalahan',
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineSmall
-                    ?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge
-                    ?.copyWith(color: Colors.white70),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => runApp(const EmoRobotApp()),
-                child: const Text('Coba Lagi'),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
